@@ -5,7 +5,7 @@ from PIL import Image
 from colorama import Fore, Back, Style
 
 
-class ArgumentOptions:
+class ConverterImage:
     parser = None
     options = None
     args = None
@@ -18,7 +18,7 @@ class ArgumentOptions:
     indexes = dict()
     order = []
 
-    def __init__(self, args=sys.argv[1:]):
+    def __init__(self, args):
         self.parser = argparse.ArgumentParser(
             description="Image Converter Command Interface"
         )
@@ -219,7 +219,6 @@ class ArgumentOptions:
         args = self.argsparser
         if self.verbose:
             print(Fore.GREEN + "[ INITIALIZED ]")
-        # VALIDATIONS
         for oe in self.order:
             if oe == "gray_scale":
                 if isinstance(args[oe], list):
@@ -240,5 +239,5 @@ class ArgumentOptions:
 
 
 if __name__ == "__main__":
-    command = ArgumentOptions()
+    command = ConverterImage(sys.argv[1:])
     command.execute()
