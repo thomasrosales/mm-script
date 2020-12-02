@@ -23,11 +23,13 @@ python .\app\image_converter.py --filename input.jpg --output tt --ext png --gra
 1. In the source folder must be the files that you want to transform. Also the image that you will use to overlay the base image.
 2. It's necessary to have installed python >= 3.7
 3. In the root of the folder is the requirements.txt file. Go to there through the terminal and execute the following command:
-  ```python pip install -r requirements.txt```
+  ```pip install -r requirements.txt```
 4. To run the script you must be execute the following code:
   ```python
   python app/image_converter.py --filename input.jpg --output tt --ext png  --rotate 90 --gray_scale bw8bp --overlay python.png --rotate 15  --verbose --show
   ```
+5. To run the test you could execute the following code:
+  ```python test.py```
   
  ### Options
  
