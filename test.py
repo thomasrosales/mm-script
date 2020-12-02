@@ -5,7 +5,7 @@ from app.image_converter import ConverterImage
 class TestConverterImage(unittest.TestCase):
     def test_init(self):
         """
-        Test the init of the ConverterImage class
+        Test the init of the ConverterImage
         """
         command = ConverterImage(
             ["--filename", "input.jpg", "--output", "tt", "--ext", "png"]
@@ -17,6 +17,8 @@ class TestConverterImage(unittest.TestCase):
         self.assertEqual(command.output, "tt")
 
     def test_execution_order(self):
+        """Test execution order of ConverterImage"""
+
         command = ConverterImage(
             [
                 "--filename",
@@ -36,6 +38,8 @@ class TestConverterImage(unittest.TestCase):
         )
 
     def test_execution_order_repeat_args(self):
+        """Test execution order if the argument are used more than once"""
+
         command = ConverterImage(
             [
                 "--filename",
@@ -60,6 +64,8 @@ class TestConverterImage(unittest.TestCase):
         )
 
     def test_base_image(self):
+        """Test the errors if the --filename arg is incorrect"""
+
         command = ConverterImage(
             [
                 "--filename",
