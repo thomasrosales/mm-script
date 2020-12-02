@@ -59,6 +59,20 @@ class TestConverterImage(unittest.TestCase):
             ["filename", "output", "ext", "rotate", "overlay", "rotate", "gray_scale"],
         )
 
+    def test_base_image(self):
+        command = ConverterImage(
+            [
+                "--filename",
+                "input_fake.jpg",
+                "--output",
+                "tt",
+                "--ext",
+                "png",
+            ]
+        )
+        command.execute()
+        self.assertIn("FileNotFoundError", command.errors)
+
 
 if __name__ == "__main__":
     unittest.main()

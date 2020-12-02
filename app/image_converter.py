@@ -17,6 +17,7 @@ class ConverterImage:
     show = False
     indexes = dict()
     order = []
+    errors = []
 
     def __init__(self, args):
         self.parser = argparse.ArgumentParser(
@@ -108,7 +109,28 @@ class ConverterImage:
             "--verbose", dest="verbose", action="store_true", help="Verbose mode."
         )
         self.options = self.parser.parse_args(self.args)
-        self.argsparser = vars(self.options)
+        self.argsparser = vars(
+            self.options
+        )  # vars return the __dict__attribute for a module, class, instance
+
+    def get_base_image(self):
+        """Gets base image from temp or source folder
+
+        Return: image_file that is a Image instance
+        """
+
+        try:
+            try:
+                image_file = Image.open("./temp/temp.png")
+            except FileNotFoundError as e:
+                image_file = Image.open(f"./source/{self.filename}")
+        except FileNotFoundError as e:
+            if self.verbose:
+                print(Fore.RED + f"[ CRITICAL EXCEPTION ] File Not Found")
+            self.errors.append("FileNotFoundError")
+            self.remove_temp()
+            return None
+        return image_file
 
     def gray_scale(self, value):
         """Applied a gray scale over the image.
@@ -120,15 +142,8 @@ class ConverterImage:
         Keyword arguments:
         value -- could be bw1bp (Black and White 1 bit pixel) or bw8bp (Black and White 8 bit pixel)
         """
-
-        try:
-            try:
-                image_file = Image.open("./temp/temp.png")
-            except Exception as e:
-                image_file = Image.open(f"./source/{self.filename}")
-        except Exception as e:
-            print(Fore.RED + f"[ CRITICAL EXCEPTION ] {e}")
-            self.remove_temp()
+        image_file = self.get_base_image()
+        if not image_file:
             return
         if self.verbose:
             print(Fore.CYAN + f"[ B/W SCALYING ] with {value}")
@@ -147,19 +162,11 @@ class ConverterImage:
         Keyword arguments:
         value -- filename of the second image
         """
-
-        try:
-            try:
-                image_file = Image.open("./temp/temp.png")
-            except Exception as e:
-                image_file = Image.open(f"./source/{self.filename}")
-        except Exception as e:
-            print(Fore.RED + f"[ CRITICAL EXCEPTION ] {e}")
-            self.remove_temp()
+        image_file = self.get_base_image()
+        if not image_file:
             return
         if self.verbose:
             print(Fore.MAGENTA + f"[ OVERLYING ] with {value}")
-        # WATERMARK
         watermark = Image.open(f"./source/{value}").convert("RGBA")
         width, height = image_file.size
         transparent = Image.new("RGBA", (width, height), (0, 0, 0, 0))
@@ -177,15 +184,8 @@ class ConverterImage:
         Keyword arguments:
         value -- degrees to rotate the image
         """
-
-        try:
-            try:
-                image_file = Image.open("./temp/temp.png")
-            except Exception as e:
-                image_file = Image.open(f"./source/{self.filename}")
-        except Exception as e:
-            print(Fore.RED + f"[ CRITICAL EXCEPTION ] {e}")
-            self.remove_temp()
+        image_file = self.get_base_image()
+        if not image_file:
             return
         if self.verbose:
             print(Fore.YELLOW + f"[ ROTATION ] {value} degrees")
@@ -194,26 +194,38 @@ class ConverterImage:
 
     def show_image(self):
         """Shows the final image."""
-
-        image_file = Image.open(f"./output/{self.output}.{self.ext}")
-        image_file.show()
-        if self.verbose:
-            print(Fore.GREEN + f"[ IMAGE SHOWED ]")
+        try:
+            image_file = Image.open(f"./output/{self.output}.{self.ext}")
+            image_file.show()
+            if self.verbose:
+                print(Fore.GREEN + f"[ IMAGE SHOWED ]")
+        except Exception as e:
+            if self.verbose:
+                print(Fore.RED + f"[ CRITICAL EXCEPTION ] File Not Found")
+            self.errors.append("FileNotFoundError")
 
     def save_image(self):
         """Saves the last convertion applied over the image in /output"""
-
-        image_file = Image.open("./temp/temp.png")
-        image_file.save(f"./output/{self.output}.{self.ext}", format="png")
-        if self.verbose:
-            print(Fore.GREEN + f"[ IMAGE SAVED ]")
+        try:
+            image_file = Image.open("./temp/temp.png")
+            image_file.save(f"./output/{self.output}.{self.ext}", format="png")
+            if self.verbose:
+                print(Fore.GREEN + f"[ IMAGE SAVED ]")
+        except FileNotFoundError as e:
+            if self.verbose:
+                print(Fore.RED + f"[ CRITICAL EXCEPTION ] File Not Found")
+            self.errors.append("FileNotFoundError")
 
     def remove_temp(self):
         """Removes the temporal image from /temp"""
-
-        os.remove("./temp/temp.png")
-        if self.verbose:
-            print(Fore.GREEN + f"[ TEMP IMAGE REMOVED ]")
+        try:
+            os.remove("./temp/temp.png")
+            if self.verbose:
+                print(Fore.GREEN + f"[ TEMP IMAGE REMOVED ]")
+        except Exception as e:
+            if self.verbose:
+                print(Fore.RED + f"[ CRITICAL EXCEPTION ] File Not Found")
+            self.errors.append("FileNotFoundError")
 
     def execute(self):
         args = self.argsparser
@@ -224,14 +236,17 @@ class ConverterImage:
                 if isinstance(args[oe], list):
                     self.gray_scale(args[oe][self.indexes[oe]])
                     self.indexes[oe] = self.indexes[oe] + 1
+                continue
             if oe == "overlay":
                 if isinstance(args[oe], list):
                     self.overlay(args[oe][self.indexes[oe]])
                     self.indexes[oe] = self.indexes[oe] + 1
+                continue
             if oe == "rotate":
                 if isinstance(args[oe], list):
                     self.rotation(args[oe][self.indexes[oe]])
                     self.indexes[oe] = self.indexes[oe] + 1
+                continue
         self.save_image()
         self.remove_temp()
         if self.show:
