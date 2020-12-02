@@ -13,6 +13,7 @@ class ArgumentOptions:
     output = None
     ext = None
     verbose = False
+    show = False
     indexes = dict()
     order = []
 
@@ -45,7 +46,7 @@ class ArgumentOptions:
         group.add_argument(
             "--filename",
             dest="filename",
-            help="Image name to be converted, with extention (jpg, png, jpeg)",
+            help="Image name to be converted, with extention (jpg, png, jpeg).",
             type=str,
             default=None,
             required=True,
@@ -53,7 +54,7 @@ class ArgumentOptions:
         group.add_argument(
             "--output",
             dest="output",
-            help="Output filename",
+            help="Output filename.",
             type=str,
             default=None,
             required=True,
@@ -62,14 +63,14 @@ class ArgumentOptions:
             "--ext",
             dest="ext",
             choices=["png", "jpg"],
-            help="Extention output file",
+            help="Extention output file.",
             required=True,
         )
         group.add_argument(
             "--gray_scale",
             dest="gray_scale",
             choices=["bw1bp", "bw8bp"],
-            help="Convert the image to black and white",
+            help="Convert the image to black and white.",
             action="append",
         )
         group.add_argument(
@@ -85,11 +86,17 @@ class ArgumentOptions:
             type=int,
             dest="rotate",
             default=None,
-            help="rotate N degrees.",
+            help="Rotate image N degrees.",
             action="append",
         )
         group.add_argument(
-            "--verbose", dest="verbose", action="store_true", help="verbose mode."
+            "--show",
+            dest="show",
+            action="store_true",
+            help="Show the image to the end.",
+        )
+        group.add_argument(
+            "--verbose", dest="verbose", action="store_true", help="Verbose mode."
         )
         self.options = self.parser.parse_args(self.args)
 
@@ -146,7 +153,10 @@ class ArgumentOptions:
         image_file.save("./temp/temp.png", format="png")
 
     def show_image(self):
-        pass
+        image_file = Image.open(f"./output/{self.output}.{self.ext}")
+        image_file.show()
+        if self.verbose:
+            print(Fore.GREEN + f"[ IMAGE SHOWED ]")
 
     def save_image(self):
         image_file = Image.open("./temp/temp.png")
@@ -157,7 +167,7 @@ class ArgumentOptions:
     def remove_temp(self):
         os.remove("./temp/temp.png")
         if self.verbose:
-            print(Fore.GREEN + f"[ IMAGE REMOVED ]")
+            print(Fore.GREEN + f"[ TEMP IMAGE REMOVED ]")
 
     def execute(self):
         args = vars(self.options)
@@ -165,6 +175,7 @@ class ArgumentOptions:
         self.output = args["output"].replace(".", "")
         self.ext = args["ext"]
         self.verbose = args["verbose"]
+        self.show = args["show"]
         if self.verbose:
             print(Fore.GREEN + "[ INITIALIZED ]")
         # VALIDATIONS
@@ -183,6 +194,8 @@ class ArgumentOptions:
                     self.indexes[oe] = self.indexes[oe] + 1
         self.save_image()
         self.remove_temp()
+        if self.show:
+            self.show_image()
 
 
 if __name__ == "__main__":
