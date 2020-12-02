@@ -25,9 +25,9 @@ Other requirements:
 - (x) The number of degrees should be given on the command line.
 - (x) The output file should be given as a filename on the command line. (Support saving as png and jpg)
 - (x) Allow applying a filter more than once. (for example: gray_scale > rotate > overlay > rotate)
-- Think about extensibility. How can you make it easy (for future you) to allow adding a new filter without changing a lot of code.
+- (x) Think about extensibility. How can you make it easy (for future you) to allow adding a new filter without changing a lot of code.
 - Add unittests to test individual components of your program. Add instructions on how to run the tests.
-- Follow PEP8 guidelines.
+- (X) Follow PEP8 guidelines.
 
 Images input.jpg and overlay.png are provided to save you a little time.
 

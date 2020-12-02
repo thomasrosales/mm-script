@@ -9,6 +9,7 @@ class ArgumentOptions:
     parser = None
     options = None
     args = None
+    argsparser = None
     filename = None
     output = None
     ext = None
@@ -27,12 +28,18 @@ class ArgumentOptions:
         self.indexes["gray_scale"] = 0
         self.indexes["overlay"] = 0
         self.indexes["rotate"] = 0
+        self.filename = self.argsparser["filename"]
+        self.output = self.argsparser["output"].replace(".", "")
+        self.ext = self.argsparser["ext"]
+        self.verbose = self.argsparser["verbose"]
+        self.show = self.argsparser["show"]
 
     def _set_execution_order(self):
+        """Sets the execution order of the arguments."""
+
         order = list()
         index = 1
         for arg in self.args:
-            # IF AN ARGUMENT
             if arg.startswith("--", 0, 2):
                 argv = arg
                 if "=" in arg:
@@ -42,6 +49,8 @@ class ArgumentOptions:
         self.order = order
 
     def _set_args_options(self):
+        """Sets the arguments."""
+
         group = self.parser.add_argument_group("image converter")
         group.add_argument(
             "--filename",
@@ -99,8 +108,19 @@ class ArgumentOptions:
             "--verbose", dest="verbose", action="store_true", help="Verbose mode."
         )
         self.options = self.parser.parse_args(self.args)
+        self.argsparser = vars(self.options)
 
     def gray_scale(self, value):
+        """Applied a gray scale over the image.
+
+        First of all looks in the temporal folder, if an image exists
+        is because another convertion was applied. If not takes the
+        the image from the source folder.
+
+        Keyword arguments:
+        value -- could be bw1bp (Black and White 1 bit pixel) or bw8bp (Black and White 8 bit pixel)
+        """
+
         try:
             try:
                 image_file = Image.open("./temp/temp.png")
@@ -118,6 +138,16 @@ class ArgumentOptions:
         image_file.save("./temp/temp.png", format="png")
 
     def overlay(self, value):
+        """Overlaps the image with a another one.
+
+        First of all looks in the temporal folder, if an image exists
+        is because another convertion was applied. If not takes the
+        the image from the source folder.
+
+        Keyword arguments:
+        value -- filename of the second image
+        """
+
         try:
             try:
                 image_file = Image.open("./temp/temp.png")
@@ -138,6 +168,16 @@ class ArgumentOptions:
         transparent.save("./temp/temp.png", format="png")
 
     def rotation(self, value):
+        """Rotates the image
+
+        First of all looks in the temporal folder, if an image exists
+        is because another convertion was applied. If not takes the
+        the image from the source folder.
+
+        Keyword arguments:
+        value -- degrees to rotate the image
+        """
+
         try:
             try:
                 image_file = Image.open("./temp/temp.png")
@@ -153,29 +193,30 @@ class ArgumentOptions:
         image_file.save("./temp/temp.png", format="png")
 
     def show_image(self):
+        """Shows the final image."""
+
         image_file = Image.open(f"./output/{self.output}.{self.ext}")
         image_file.show()
         if self.verbose:
             print(Fore.GREEN + f"[ IMAGE SHOWED ]")
 
     def save_image(self):
+        """Saves the last convertion applied over the image in /output"""
+
         image_file = Image.open("./temp/temp.png")
         image_file.save(f"./output/{self.output}.{self.ext}", format="png")
         if self.verbose:
             print(Fore.GREEN + f"[ IMAGE SAVED ]")
 
     def remove_temp(self):
+        """Removes the temporal image from /temp"""
+
         os.remove("./temp/temp.png")
         if self.verbose:
             print(Fore.GREEN + f"[ TEMP IMAGE REMOVED ]")
 
     def execute(self):
-        args = vars(self.options)
-        self.filename = args["filename"]
-        self.output = args["output"].replace(".", "")
-        self.ext = args["ext"]
-        self.verbose = args["verbose"]
-        self.show = args["show"]
+        args = self.argsparser
         if self.verbose:
             print(Fore.GREEN + "[ INITIALIZED ]")
         # VALIDATIONS
